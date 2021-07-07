@@ -44,22 +44,21 @@ const NewPosts = ({history}) => {
       try {
         const formData = new FormData();
         console.log(localStorage.getItem("token"));
-        const post = {
-          title,
-          content: convertedContent,
-          token: localStorage.getItem("token"),
-          keys: tags,
-          image: selectedFile,
-        };
-        // formData.append("title", title);
-        // formData.append("image", selectedFile);
-        // formData.append("content", convertedContent);
-        // formData.append("token", "f04858a256b03b81ba591a525ff54a69JfwGHbXB06286H+4SOINEyJ3k6HtX4+fprXyE3pimAR1DRK4TXG5ESA4Ge8HMeww");
-        // formData.append("keys", tags);
+        // const post = {
+        //   title,
+        //   content: convertedContent,
+        //   token: localStorage.getItem("token"),
+        //   keys: tags,
+        //   post: selectedFile,
+        // };
+        formData.append("title", title);
+        formData.append("post", selectedFile);
+        formData.append("description" , description);
+        formData.append("content", convertedContent);
+        formData.append("token", localStorage.getItem("token"));
+        formData.append("keys", tags);
 
-        // const {data , message} = await registerUser(user);
-        // if(status == 201){
-        const { data, message, status } = await createPost(post);
+        const { data, message, status } = await createPost(formData);
 
         if (status === 201) {
           dispatch(hideLoading());

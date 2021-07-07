@@ -1,9 +1,15 @@
-import React, { Fragment } from "react";
+import React, { Fragment , useState } from "react";
 import { isEmpty } from "lodash";
 import { useSelector } from "react-redux";
-import { NavLink, withRouter } from "react-router-dom";
+import { NavLink, withRouter , Link } from "react-router-dom";
 
 const Header = (props) => {
+   
+  const [query , setQuery] = useState();
+  const handleSearch = (e) => {
+    setQuery(`/search/${e.target.value}`);
+  }
+
   const user = useSelector((state) => state.user);
 
   const activeSyle = {
@@ -57,6 +63,25 @@ const Header = (props) => {
             </NavLink>
           </li>
         </ul>
+        {/* search box */}
+        <div className="row mx-auto">
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="input-group col-12">
+              <input type="text"
+               className="form-control rounded-left w-50 input-sm"
+                placeholder="search..." 
+                onChange={(e) => handleSearch(e)}
+                />
+              <div className="input-group-append">
+                <Link className="btn btn-sm btn-light rounded-right" to={query} style={{backgroundColor:"#dcdcdc"}}>
+                  <i className="fa fa-search mt-1"></i>
+                </Link>
+              </div>
+            </div>
+
+          </form>
+
+        </div>
 
         <ul className="ml-auto m-0 navbar-nav">
           {!isEmpty(user) ? (

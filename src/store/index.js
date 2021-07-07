@@ -14,7 +14,7 @@ export const store = createStore(
 
 // init
 
-store.dispatch(getAllPosts())
+store.dispatch(getAllPosts());
 
 
 // subscribe

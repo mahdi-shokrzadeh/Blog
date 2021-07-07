@@ -53,7 +53,7 @@ const Register = ({history}) => {
             const {data , message , status} = await registerUser(user) ;
 
             if(status===200){
-                toast.success(`Welcome ${user.username} !` , {
+                toast.success(`Welcome ${user.fullname} !` , {
                     position : "top-right", 
                     closeOnClick: true
                 })

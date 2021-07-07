@@ -43,6 +43,19 @@ h1 {
 	background-color: #d0d6dd;
 }
 
+.admin-panel-item{
+	transition: 500ms;
+}
+.admin-panel-item:hover {
+	background-color: #83d0c9;
+}
+
+.manager-panel-item {
+	transition: 500ms;
+}
+.manager-panel-item:hover{
+	background-color: #bdeaee  ;
+}
 .posts img {
 	max-height: 300px;
 }

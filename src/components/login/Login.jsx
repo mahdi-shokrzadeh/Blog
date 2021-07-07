@@ -38,24 +38,23 @@ const Login = ({history}) => {
       setPassword("") ;
     }
 
-
     try {
 
       if (validator.current.allValid()) {
 
         dispatch(showLoading());
 
-        const { status, data } = await loginUser(user);
+        const { status , data } = await loginUser(user);
 
         if (status === 202) {
           toast.success("You entered successfuly !", {
             position: "top-right",
           });
           dispatch(hideLoading());
-          // dispatch(addUser(decodeToken(data.token).payload.user));
-          localStorage.setItem("token", data.token.token);
           
-          dispatch(addUser({fullname:"Mahdi"}))
+          localStorage.setItem("token", data.token.token);
+          localStorage.setItem("user" , JSON.stringify(data.user));
+          dispatch(addUser(data.user));
           history.replace("/");
           reset();
 

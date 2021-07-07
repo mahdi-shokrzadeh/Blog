@@ -18,11 +18,11 @@ const Footer = () => {
           <section className="mb-3">
             <form action="">
               <div className="row justify-content-center">
-                <div class="input-group col-md-5 col-12">
-                  <input type="text" class="form-control" placeholder="Email" />
-                  <div class="input-group-append">
-                    <button class="btn btn-sm btn-outline-dark" type="submit">
-                      <i class="fa fa-paper-plane"></i>
+                <div className="input-group col-md-5 col-12">
+                  <input type="text" className="form-control" placeholder="Email" />
+                  <div className="input-group-append">
+                    <button className="btn btn-sm btn-outline-dark" type="submit">
+                      <i className="fa fa-paper-plane"></i>
                     </button>
                   </div>
                 </div>
@@ -37,7 +37,7 @@ const Footer = () => {
               href="#!"
               role="button"
             >
-              <i className="fa fa-facebook"></i>
+              <i className="fab fa-facebook-f"></i>
             </a>
 
             <a
@@ -46,7 +46,7 @@ const Footer = () => {
               href="#!"
               role="button"
             >
-              <i className="fa fa-twitter"></i>
+              <i className="fab fa-twitter"></i>
             </a>
 
             <a
@@ -55,7 +55,7 @@ const Footer = () => {
               href="#!"
               role="button"
             >
-              <i className="fa fa-telegram"></i>
+              <i className="fab fa-telegram"></i>
             </a>
 
             <a
@@ -64,7 +64,7 @@ const Footer = () => {
               href="#!"
               role="button"
             >
-              <i className="fa fa-instagram"></i>
+              <i className="fab fa-instagram"></i>
             </a>
           </section>
         </div>
