@@ -47,7 +47,7 @@ const Login = ({history}) => {
         const { status , data } = await loginUser(user);
 
         if (status === 202) {
-          toast.success("You entered successfuly !", {
+          toast.success("You entered successfully !", {
             position: "top-right",
           });
           dispatch(hideLoading());

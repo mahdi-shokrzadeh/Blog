@@ -62,6 +62,22 @@ const Header = (props) => {
               Contact
             </NavLink>
           </li>
+          
+          {/* manager access */}
+          {user.role === "Manager" ? (
+
+          <li className="nav-item text-center">
+            <NavLink
+              exact
+              className="nav-link"
+              to="/manage-users"
+              activeStyle={activeSyle}
+            >
+              Manage users
+            </NavLink>
+          </li>
+          ) : null}
+
         </ul>
         {/* search box */}
         <div className="row mx-auto">

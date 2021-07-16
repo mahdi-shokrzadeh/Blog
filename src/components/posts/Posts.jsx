@@ -4,6 +4,8 @@ import { isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoading, showLoading } from "react-redux-loading-bar";
 import { getPostImage } from "../../services/postService";
+import { getProfilePic } from "../../services/userService";
+
 
 const Posts = ({ posts }) => {
   const dispatch = useDispatch();
@@ -21,14 +23,26 @@ const Posts = ({ posts }) => {
       )}
       {posts.map((post) => (
         <div className="card border mb-3 post" key={post.id}>
-          <div className="author mb-3 ml-3 mt-2">
+          <div className="author mb-3 ml-3">
             <img
               src={`/img/${post.id}`}
               alt=""
               className="img img-fluid rounded-pill"
             />
-            <Link to="" className="ml-1" style={{ textDecoration: "none" }}>
-              <span className="text-muted">{post.user_fullname}</span>
+            {console.log(post)}
+            <Link to={`/users/${post.user_id}`} className="ml-1" style={{ textDecoration: "none" }}>
+              <div className="row">
+                <div className="col-1 align-items-center justify-content-center">
+                  <img src={getProfilePic(post.user_id)} 
+                  width="40px"
+                  height="40px"
+                  className="rounded-pill"
+                  alt="" />
+                </div>
+                <div className="col-3 text-left d-flex">
+                  <span className="text-dark align-self-center" style={{fontSize:"15px" , fontWeight:"bolder"}}>{post.user_fullname}</span>
+                </div>
+              </div>
             </Link>
           </div>
 
@@ -50,7 +64,7 @@ const Posts = ({ posts }) => {
             </div>
             <p className="card-text">{post.description}</p>
             <div className="mt-2">
-              {post.keys.split(",").map((key , i) => (
+              {post.tags.split(",").map((key , i) => (
                 <Link to={`/search/${key.trim().replace("#" , "")}`} key={i}>
                   <span
                     className="badge badge-info mr-4 p-1 rounded"
@@ -76,12 +90,7 @@ const Posts = ({ posts }) => {
                     <small>{post.created_at}</small>
                   </i>
                 </span>
-                {/* <span
-                  className="badge badge-info ml-3 p-1"
-                  style={{ fontWeight: 350 }}
-                >
-                  read in 5 min
-                </span> */}
+                
               </div>
               <div className="col-2">
                 <span>

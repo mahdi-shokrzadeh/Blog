@@ -13,10 +13,14 @@ import Contact from "../components/common/Contact";
 import Logout from "../components/login/Logout";
 import { addUser } from "../actions/user";
 import { getAllPosts } from "../actions/posts"
-import { decodeToken } from "../utils/decodeToken";
 import Post from "../components/posts/Post";
 import NewPost from "../components/posts/NewPost";
 import IndexPage from "../components/common/IndexPage";
+import UserPanel from "../components/admin/UserPanel";
+import EditPost from "../components/posts/EditPost";
+import Profile from "../components/profile/Profile";
+import ProfilePanel from "../components/profile/ProfilePanel";
+import NotFound from "../components/common/NotFound";
 
 
 const Blog = () => {
@@ -42,14 +46,21 @@ const Blog = () => {
     <MainLayout>
         <Switch>
             <Route path="/post/:id" exact component={Post} /> 
+            <Route path="/post/:id/edit" exact component={EditPost} />
+            <Route path="/manage-users" exact component={UserPanel} />
             <Route path="/new-post" exact component={NewPost} />
             <Route path="/about" exact component={About} />
             <Route path="/" exact component={IndexPage} />
+
+            <Route path="/user/panel" exact component={ProfilePanel} />
+            <Route path="/users/:id" exact component={Profile} />
+
             <Route path="/search/:query" exact component={IndexPage} />
             <Route path="/login" exact component={Login} />
             <Route path="/logout" exact component={Logout} />
             <Route path="/register" exact component={Register} />
             <Route path="/contact" exact component={Contact} />
+            <Route path="*" exact component={NotFound} />
         </Switch>
     </MainLayout>
   );

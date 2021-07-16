@@ -18,6 +18,7 @@ const Logout = ({history}) => {
             
             if(status === 200){
                 localStorage.removeItem("token");
+                localStorage.removeItem("user");
                 dispatch(clearUser()) ;
                 history.push("/")
             }

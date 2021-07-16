@@ -2,35 +2,162 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSinglePost, likePost } from "../../actions/post";
 import { Link, useParams } from "react-router-dom";
+import { withRouter } from "react-router";
 import { hideLoading } from "react-redux-loading-bar";
-import { getPostImage } from "../../services/postService";
+import {
+  approvePost,
+  getPostImage,
+  handlelikePost,
+} from "../../services/postService";
 import DOMPurify from "dompurify";
 import Content from "../common/Content";
+import { isEmpty } from "lodash";
+import { getAllPosts } from "../../actions/posts";
+import Comments from "../comments/Comments";
+import { toast } from "react-toastify";
+import { getProfilePic } from "../../services/userService";
 
-const Post = ({ match }) => {
+const Post = ({ match, history }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(hideLoading());
     if (localStorage.getItem("token")) {
-      const dataPost = {
-        token: localStorage.getItem("token"),
-      };
-
-      dispatch(getSinglePost(match.params.id, dataPost));
+      dispatch(getSinglePost(match.params.id, localStorage.getItem("token")));
     } else {
       dispatch(getSinglePost(match.params.id, ""));
     }
   }, []);
 
   const post = useSelector((state) => state.post);
+  const user = useSelector((state) => state.user);
 
-  let likeStyle = post.is_liked ? "text-danger" : "text-light" ;
+  let likeStyle = post.is_liked ? "text-danger" : "text-muted";
 
+  const handleApprovement = async (type) => {
+    const data = {
+      token: localStorage.getItem("token"),
+      approvement: type,
+    };
+    try {
+      const {status} = await approvePost(data, post.id);
+      if(status === 200){
 
-  const handleLike = () => {
-    dispatch(likePost());
+        toast.dark("Successfully done !");
+        dispatch(getAllPosts());
+        dispatch(getSinglePost(post.id , localStorage.getItem("token")))
+      }
+    } catch (er) {
+      console.log(er);
+    }
   };
+
+  const handleLike = async () => {
+    if (!isEmpty(localStorage.getItem("token"))) {
+      try {
+        const data = {
+          token: localStorage.getItem("token"),
+        };
+        const { status } = await handlelikePost(post.id, data);
+        if (status === 200) {
+          dispatch(likePost());
+          dispatch(getAllPosts());
+        }
+      } catch (er) {
+        console.log(er);
+      }
+    } else {
+      history.push("/login");
+    }
+  };
+
+  let statusStyle = "badge-danger";
+  if (post.status === "Approved") {
+    statusStyle = "badge-success";
+  } else if (post.status === "Pending") {
+    statusStyle = "badge-warning";
+  }
+  // "edit" access
+  let section = null;
+  if (localStorage.getItem("token")) {
+    if (user.role === "Manager" || user.role === "Admin") {
+      section = (
+        <div className="border mt-4 p-2 approvement-section">
+          <div className="mb-3 mt-3 text-center">
+            <i>
+              <span
+                className="bold"
+                style={{ fontSize: "14px", fontWeight: "bold" }}
+              >
+                Post status :{" "}
+              </span>
+            </i>
+            <span className={`badge p-1 ${statusStyle}`}>{post.status}</span>
+          </div>
+          <div className="text-center mt-4">
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                handleApprovement("Approved");
+              }}
+              style={{ fontSize: "12.5px" }}
+              className={`btn btn-sm btn-outline-success rounded-pill ${
+                post.status === "Approved" ? "disabled" : null
+              }`}
+            >
+              Approve
+            </a>
+
+            <a
+              href="/"
+              style={{ fontSize: "12.5px" }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleApprovement("Disapproved");
+              }}
+              className={`btn btn-sm btn-outline-danger rounded-pill ml-2 ${
+                post.status === "Disapproved" ? "disabled" : null
+              }`}
+            >
+              Disapprove
+            </a>
+          </div>
+          <div className="mt-4 mb-3 text-center">
+            <Link to={`/post/${post.id}/edit`}>
+              <button className="btn btn-primary rounded-pill btn-sm">
+                Edit this post
+              </button>
+            </Link>
+          </div>
+        </div>
+      );
+    } else if (user.id === post.user_id) {
+      section = (
+        <div className="border mt-4 p-2 approvement-section">
+          <div className="mb-4 mt-2 text-center">
+            <i>
+              <span
+                className="bold"
+                style={{ fontSize: "14px", fontWeight: "bold" }}
+              >
+                Post status :{" "}
+              </span>
+            </i>
+            <span className={`badge p-1 ${statusStyle}`}>{post.status}</span>
+          </div>
+
+          <div className="mt-3 mb-3 text-center">
+            <Link to={`/post/${post.id}/edit`}>
+              <button className="btn btn-primary rounded-pill btn-sm">
+                Edit this post
+              </button>
+            </Link>
+          </div>
+        </div>
+      );
+    }
+  }
 
   return (
     <div className="row mt-4">
@@ -40,7 +167,7 @@ const Post = ({ match }) => {
             <div className="row p-2 mb-2 rounded user-panel-item border mt-3">
               <div className="col-3">
                 <img
-                  src="https://secure.gravatar.com/avatar/d54efb622ee21b88bf34bb09217bba4e.jpg?s=40&d=retro&r=g"
+                  src={getProfilePic(user.id)}
                   className="img img-fluid rounded-pill"
                 />
               </div>
@@ -68,6 +195,9 @@ const Post = ({ match }) => {
               </div>
             </div>
           </Link>
+
+          {/* edit button */}
+          {section}
         </div>
       </div>
 
@@ -75,22 +205,27 @@ const Post = ({ match }) => {
         <div className="row">
           <div className="col-1 d-flex flex-column">
             <div className="d-none d-md-block">
-              <Link className={`like-icon ${likeStyle}`} style={{textDecoration: "none" }}>
+              <Link
+                className={`like-icon ${likeStyle}`}
+                style={{ textDecoration: "none" }}
+              >
                 <i
                   className="fa fa-heart fa-2x"
                   to=""
                   onClick={(e) => {
                     e.preventDefault();
                     handleLike();
-                }}
-
+                  }}
                 ></i>
               </Link>
               <div className="ml-2">
                 <span>{post.likes}</span>
               </div>
               <div className="comments-icon mt-3">
-                <i className="fa fa-comments fa-2x"></i>
+                <i
+                  className="fa fa-comments fa-2x"
+                  style={{ color: "#475569" }}
+                ></i>
               </div>
               <div className="ml-2">
                 <span>3</span>
@@ -110,7 +245,7 @@ const Post = ({ match }) => {
                 <h5 className="mb-3">{post.title}</h5>
                 <img
                   src={getPostImage(post.id)}
-                  className="img img-fluid rounded  "
+                  className="img img-fluid rounded"
                 />
 
                 {/* <div className="tags d-flex flex-row mt-3">
@@ -171,41 +306,8 @@ const Post = ({ match }) => {
                 </div>
               </div>
             </div>
-
-            <div className="comments mt-5">
-              <h5>Comments</h5>
-              <div className=" border rounded p-4">
-                <div className="comment">
-                  <div className="">
-                    <img
-                      src="https://secure.gravatar.com/avatar/d54efb622ee21b88bf34bb09217bba4e.jpg?s=50&d=retro&r=g"
-                      className="img img-fluid rounded-pill mr-3"
-                    />
-                    <h6 className="d-inline">Mahdi shokrzadeh</h6>
-                    <button className="btn text-center ml-4">
-                      <i
-                        className="fa fa-arrow-right"
-                        style={{ color: "green" }}
-                      ></i>
-                    </button>
-                  </div>
-
-                  <div className="mt-3">
-                    {/* 1 */}
-                    <div className="comment-content">
-                      <p style={{ fontSize: "14px" }} className="justfy">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Voluptate quaerat non cumque minima magni, quidem
-                        alias. Fugiat ab numquam illum beatae quasi dolorem
-                        saepe! Odit illo blanditiis tenetur voluptas natus.
-                      </p>
-                    </div>
-
-                    {/* 2  replied*/}
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* comments */}
+            <Comments comments={post.comments} postId={post.id} />
           </div>
         </div>
       </div>
@@ -213,4 +315,4 @@ const Post = ({ match }) => {
   );
 };
 
-export default Post;
+export default withRouter(Post);

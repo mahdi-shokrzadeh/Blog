@@ -5,10 +5,13 @@ export const getPosts = () => {
   return http.get(`${config.localHost}/showposts`);
 };
 
-export const getPost = (postId , data) => {
-  return http.post(`${config.localHost}/singlepost/${postId}` , JSON.stringify(data));
+export const getPost = (postId, token) => {
+  return http.get(`${config.localHost}/singlepost/${postId}`, {
+    headers: {
+      Authorization: `token ${token}`,
+    },
+  });
 };
-
 
 export const createPost = (post) => {
   return http.post(`${config.localHost}/post`, post, {
@@ -28,4 +31,38 @@ export const getUserPosts = (token) => {
 
 export const getPostImage = (id) => {
   return `${config.localHost}/img/${id}`;
+};
+
+
+export const deletePost = (id, token) => {
+  return http.delete(`${config.localHost}/deletepost/${id}`, {
+    headers : {
+      Authorization : `token ${token}` ,
+    }
+  });
+};
+
+
+export const handlelikePost = (id , data) => {
+  return http.post(`${config.localHost}/like/${id}` , JSON.stringify(data) );
+}
+
+
+export const searchPosts = (query) => {
+  return http.get(`${config.localHost}/tagedposts/${query}`);
+}
+
+
+/// admin 
+
+export const pendingPosts = (token) => {
+  return http.get(`${config.localHost}/pendingposts` , {
+    headers : {
+      Authorization : `token ${token}` ,
+    }
+  })
+}
+
+export const approvePost = (data , postId) => {
+  return http.post(`${config.localHost}/approvepost/${postId}` , JSON.stringify(data) )
 }

@@ -1,15 +1,27 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { EditorState } from "draft-js";
 import TextEditor from "../common/TextEditor";
 import { convertToHTML } from "draft-convert";
 import SimpleReactValidator from "simple-react-validator";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { hideLoading, showLoading } from "react-redux-loading-bar";
 import { toast } from "react-toastify";
 import { withRouter } from "react-router";
 import { createPost } from "../../services/postService";
+import {createUserPost} from "../../actions/user" ;
+import { getAllPosts } from "../../actions/posts";
+import { isEmpty } from "lodash";
 
 const NewPosts = ({history}) => {
+
+  const user = useSelector(state => state.user);
+  useEffect(() => {
+    if(isEmpty(user)){
+      history.replace("/404");
+    }
+  }, []);
+
+
   const dispatch = useDispatch();
   const validator = useRef(
     new SimpleReactValidator({
@@ -43,7 +55,6 @@ const NewPosts = ({history}) => {
       dispatch(showLoading());
       try {
         const formData = new FormData();
-        console.log(localStorage.getItem("token"));
         // const post = {
         //   title,
         //   content: convertedContent,
@@ -56,13 +67,15 @@ const NewPosts = ({history}) => {
         formData.append("description" , description);
         formData.append("content", convertedContent);
         formData.append("token", localStorage.getItem("token"));
-        formData.append("keys", tags);
+        formData.append("tags", tags);
 
         const { data, message, status } = await createPost(formData);
 
-        if (status === 201) {
+        if (status === 200) {
           dispatch(hideLoading());
-
+          // update user posts count
+          dispatch(createUserPost()) ;
+          dispatch(getAllPosts()) ;
           history.replace("/");
           reset();
 
@@ -151,7 +164,7 @@ const NewPosts = ({history}) => {
               }}
             />
             <small id="Tag" class="form-text text-muted">
-              min 1 max 4
+              separate the tags with ","
             </small>
           </div>
           {validator.current.message("tags", tags, "required")}
