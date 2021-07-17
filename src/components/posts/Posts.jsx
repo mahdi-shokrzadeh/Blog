@@ -29,7 +29,6 @@ const Posts = ({ posts }) => {
               alt=""
               className="img img-fluid rounded-pill"
             />
-            {console.log(post)}
             <Link to={`/users/${post.user_id}`} className="ml-1" style={{ textDecoration: "none" }}>
               <div className="row">
                 <div className="col-1 align-items-center justify-content-center">

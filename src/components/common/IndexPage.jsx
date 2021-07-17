@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, withRouter } from "react-router-dom";
-import { isEmpty } from "lodash";
+import { isEmpty, set } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import Posts from "../posts/Posts";
 import { getUserPosts, pendingPosts, searchPosts } from "../../services/postService";
@@ -10,6 +10,7 @@ import { getPendingComments } from "../../services/commentService";
 import PendingComments from "../comments/PendingComments";
 
 const IndexPage = ({ match }) => {
+
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const allPosts = useSelector((state) => state.posts);
@@ -19,14 +20,16 @@ const IndexPage = ({ match }) => {
   const [comments, setComments] = useState([]);
 
   const search = async (query) => {
-    // const { status , data } = await searchPosts(query);
-    // console.log(status , data);
+    const { status , data } = await searchPosts(query);
+    if(status === 200 ){
+      setHeader(`result for ${query}`);
+      setPosts(data.posts)
+    }
   }
 
   useEffect(() => {
     if (match.params.query) {
       search(`#${match.params.query}`);
-      console.log(match.params.query);
     }
   });
 

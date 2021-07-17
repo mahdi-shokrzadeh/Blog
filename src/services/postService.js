@@ -49,7 +49,9 @@ export const handlelikePost = (id , data) => {
 
 
 export const searchPosts = (query) => {
-  return http.get(`${config.localHost}/tagedposts/${query}`);
+  return http.post(`${config.localHost}/tagedposts` , JSON.stringify({
+    tag: query
+  }));
 }
 
 
@@ -66,3 +68,13 @@ export const pendingPosts = (token) => {
 export const approvePost = (data , postId) => {
   return http.post(`${config.localHost}/approvepost/${postId}` , JSON.stringify(data) )
 }
+
+
+// edit post
+export const editPost = (post , postId) => {
+  return http.put(`${config.localHost}/editpost/${postId}`, post, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

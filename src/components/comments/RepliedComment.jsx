@@ -62,8 +62,11 @@ const RepliedComment = ({ repliedComment, parentCommentId }) => {
 
   const handleDelete = async (commentId) => {
 
-    const response = await deleteComment(commentId , localStorage.getItem("token"));
-    console.log(response);
+    const {status} = await deleteComment(commentId , localStorage.getItem("token"));
+    if(status === 200){
+      toast.success("Comment deleted successfully !");
+      window.location.reload();
+    }
   }
 
 

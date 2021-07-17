@@ -65,10 +65,12 @@ const Comment = ({ comment }) => {
 
   const handleDelete = async (commentId) => {
 
-    const {status} = await deleteComment(commentId , localStorage.getItem("token"));
+    const {status , data} = await deleteComment(commentId , localStorage.getItem("token"));
     if( status === 200 ){
       toast.success("Comment deleted Successfully !");
       window.location.reload();
+    }else{
+      console.log(status , data);
     }
   }
 

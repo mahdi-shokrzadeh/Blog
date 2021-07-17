@@ -5,11 +5,9 @@ import { withRouter } from "react-router";
 import { toast } from "react-toastify";
 import SimpleReactValidator from "simple-react-validator";
 import { changeFullname } from "../../actions/user";
-import { editProfile , getProfilePic } from "../../services/userService";
-
+import { editProfile, getProfilePic } from "../../services/userService";
 
 const ProfilePanel = ({ history }) => {
-
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -36,28 +34,25 @@ const ProfilePanel = ({ history }) => {
   const [selectedFile, setSelectedFile] = useState("");
   const [bio, setBio] = useState("");
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validator.current.allValid()) {
-
       const formData = new FormData();
       formData.append("token", localStorage.getItem("token"));
-      formData.append("fullname" , fullname);
-      formData.append("description" , bio);
+      formData.append("fullname", fullname);
+      formData.append("description", bio);
       formData.append("pic", selectedFile);
 
       // request to server for update
-      try{
+      try {
         const { data, status } = await editProfile(formData);
         console.log(status);
-        if (status === 200){
+        if (status === 200) {
           toast.success("Profile updated!");
           dispatch(changeFullname(fullname));
         }
-       
-      }catch(er){
+      } catch (er) {
         console.log(er);
       }
     } else {
@@ -66,8 +61,8 @@ const ProfilePanel = ({ history }) => {
     }
   };
   const style = {
-    color:"#4D5569"
-  }
+    color: "#4D5569",
+  };
 
   return (
     <div className="mt-5 profile-border p-3">
@@ -84,28 +79,42 @@ const ProfilePanel = ({ history }) => {
             style={{ width: "100px", height: "100px" }}
           />
         </div>
-        <div className="col-6 col-md-5">
+        <div className="col-6 col-md-5 text-left">
           <div className="m-1">
             <span className="title-profile">Fullname : </span>
-            <i><span style={style} >{user.fullname}</span></i>
+            <i>
+              <span style={style}>{user.fullname}</span>
+            </i>
+          </div>
+          <div>
+            <span className="title-profile">Bio : </span>
+              {user.description}
           </div>
           <div className="m-1">
             <span className="title-profile">Email address : </span>
-            <i><span style={style} >{user.email}</span></i>
-          </div>
-          <div className="m-1">
-            <span className="title-profile">Role : </span>
-            <span className="badge badge-warning rounded-pill p-1" >{user.role}</span>
+            <i>
+              <span style={style}>{user.email}</span>
+            </i>
           </div>
         </div>
         <div className="col-6 col-md-4">
-          <div className="m-1">
+          <div className="m-1 text-left">
+            <span className="title-profile">Role : </span>
+            <span className="badge badge-warning rounded-pill p-1">
+              {user.role}
+            </span>
+          </div>
+          <div className="m-1 text-left">
             <span className="title-profile">Posted articles : </span>
-            <span className="badge badge-success badge-pill" >{user.posts_count}</span>
+            <span className="badge badge-success badge-pill">
+              {user.posts_count}
+            </span>
           </div>
           <div>
             <span className="title-profile">Posted comments : </span>
-            <span className="badge badge-primary badge-pill" >{user.comments_count}</span>
+            <span className="badge badge-primary badge-pill">
+              {user.comments_count}
+            </span>
           </div>
         </div>
       </div>
@@ -114,7 +123,7 @@ const ProfilePanel = ({ history }) => {
       </div>
       <hr />
 
-      <form onSubmit={ (e) => handleSubmit(e)}>
+      <form onSubmit={(e) => handleSubmit(e)}>
         <div className="form-group p-2">
           <input
             type="text"
@@ -128,7 +137,6 @@ const ProfilePanel = ({ history }) => {
           />
           {validator.current.message("fullname", fullname, "required|min:3")}
 
-
           <input
             type="text"
             name="bio"
@@ -140,35 +148,33 @@ const ProfilePanel = ({ history }) => {
             }}
           />
           {validator.current.message("bio", bio, "required|max:100")}
-
         </div>
-          <div class="custom-file mt-3">
-            <input
-              type="file"
-              name="file"
-              class="custom-file-input input"
-              id="validatedCustomFile"
-              onChange={(e) => {
-                setSelectedFile(e.target.files[0]);
-                validator.current.showMessageFor("file");
-              }}
-            />
-            {validator.current.message("file", selectedFile, "required")}
+        <div class="custom-file mt-3">
+          <input
+            type="file"
+            name="file"
+            class="custom-file-input input"
+            id="validatedCustomFile"
+            onChange={(e) => {
+              setSelectedFile(e.target.files[0]);
+              validator.current.showMessageFor("file");
+            }}
+          />
+          {validator.current.message("file", selectedFile, "required")}
 
-            <label class="custom-file-label" for="validatedCustomFile">
-              Choose Profile photo...
-            </label>
-            <div className="text-center mt-4">
-              <input
-                type="submit"
-                value="Update profile"
-                name=""
-                id="submit-form-button"
-                className="btn btn-outline-success rounded-pill"
-              />
-            </div>
+          <label class="custom-file-label" for="validatedCustomFile">
+            Choose Profile photo...
+          </label>
+          <div className="text-center mt-4">
+            <input
+              type="submit"
+              value="Update profile"
+              name=""
+              id="submit-form-button"
+              className="btn btn-outline-success rounded-pill"
+            />
           </div>
-        
+        </div>
       </form>
     </div>
   );

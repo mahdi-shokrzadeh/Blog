@@ -40,12 +40,11 @@ const Post = ({ match, history }) => {
       approvement: type,
     };
     try {
-      const {status} = await approvePost(data, post.id);
-      if(status === 200){
-
+      const { status } = await approvePost(data, post.id);
+      if (status === 200) {
         toast.dark("Successfully done !");
         dispatch(getAllPosts());
-        dispatch(getSinglePost(post.id , localStorage.getItem("token")))
+        dispatch(getSinglePost(post.id, localStorage.getItem("token")));
       }
     } catch (er) {
       console.log(er);
@@ -228,7 +227,7 @@ const Post = ({ match, history }) => {
                 ></i>
               </div>
               <div className="ml-2">
-                <span>3</span>
+                <span>{post.comments_count}</span>
               </div>
               <div className="mt-3">
                 <i
@@ -286,16 +285,25 @@ const Post = ({ match, history }) => {
               <div className="d-md-none">
                 <div className="row">
                   <div className="col-4 text-center like-icon">
-                    <i
-                      className="fa fa-heart mr-3"
-                      style={{ color: "red" }}
-                    ></i>
-                    <span>2</span>
+                    <Link
+                      className={`like-icon ${likeStyle}`}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <i
+                        className="fa fa-heart mr-3"
+                        to=""
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleLike();
+                        }}
+                      ></i>
+                      <span>{post.likes}</span>
+                    </Link>
                   </div>
 
                   <div className="col-4 text-center comments-icon">
                     <i className="fa fa-comments mr-3"></i>
-                    <span>3</span>
+                    <span>{post.comments_count}</span>
                   </div>
                   <div className="col-4 text-center">
                     <i
