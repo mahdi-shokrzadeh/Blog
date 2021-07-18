@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { withRouter } from "react-router";
 import { toast } from "react-toastify";
 import SimpleReactValidator from "simple-react-validator";
-import { changeFullname } from "../../actions/user";
+import { changeBio, changeFullname } from "../../actions/user";
 import { editProfile, getProfilePic } from "../../services/userService";
 
 const ProfilePanel = ({ history }) => {
@@ -40,17 +40,18 @@ const ProfilePanel = ({ history }) => {
     if (validator.current.allValid()) {
       const formData = new FormData();
       formData.append("token", localStorage.getItem("token"));
-      formData.append("fullname", fullname);
       formData.append("description", bio);
+      formData.append("fullname", fullname);
       formData.append("pic", selectedFile);
 
       // request to server for update
       try {
-        const { data, status } = await editProfile(formData);
+        const { status } = await editProfile(formData);
         console.log(status);
         if (status === 200) {
           toast.success("Profile updated!");
           dispatch(changeFullname(fullname));
+          dispatch(changeBio(bio));
         }
       } catch (er) {
         console.log(er);
@@ -88,7 +89,12 @@ const ProfilePanel = ({ history }) => {
           </div>
           <div>
             <span className="title-profile">Bio : </span>
-              {user.description}
+            <i>
+              <span style={style}>
+                {user.description}
+
+              </span>
+            </i>
           </div>
           <div className="m-1">
             <span className="title-profile">Email address : </span>
@@ -123,8 +129,8 @@ const ProfilePanel = ({ history }) => {
       </div>
       <hr />
 
-      <form onSubmit={(e) => handleSubmit(e)}>
-        <div className="form-group p-2">
+      <form className="form-group" onSubmit={(e) => handleSubmit(e)}>
+        <div className="mt-4">
           <input
             type="text"
             name="fullname"

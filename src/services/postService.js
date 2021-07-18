@@ -78,3 +78,9 @@ export const editPost = (post , postId) => {
     },
   });
 };
+
+// get popular tags
+
+export const getPopularTags = () => {
+  return http.get(`${config.localHost}/tags`);
+}

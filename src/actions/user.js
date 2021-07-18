@@ -33,3 +33,12 @@ export const changeFullname = (fullname) => {
     await dispatch({type : "CHANGE_FULLNAME" , payload : user});
   }
 }
+
+export const changeBio = (bio) => {
+  return async (dispatch , getState) => {
+    
+    const user = {...getState().user};
+    user.description = bio ;
+    await dispatch({type : "CHANGE_BIO" , payload : user})
+  }
+}

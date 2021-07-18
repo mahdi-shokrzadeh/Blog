@@ -90,7 +90,7 @@ const EditPost = ({history}) => {
       const { data, message, status } = await editPost(formData , id);
       if(status === 200){
         toast.info("Post updated !");
-        history.replace(`/posts/${id}`);
+        history.replace(`/post/${id}`);
 
       }else{
         console.log(status , message);
@@ -134,7 +134,7 @@ const EditPost = ({history}) => {
 
       <div className="container mt-5">
         <div className="mt-5">
-          <h5>Description</h5>
+          <h6>Description</h6>
           <form action="" 
           className="form-group"
           onSubmit={(e) => {
@@ -145,7 +145,7 @@ const EditPost = ({history}) => {
           <input 
           type="text" 
           name="description" 
-          className="form-control mb-5"
+          className="form-control mb-2"
           onChange={(e) => {
 
             setDescrption(e.target.value);
@@ -160,7 +160,7 @@ const EditPost = ({history}) => {
         
         <div className="text-left">
           
-          <h5>Content</h5>
+          <h6>Content</h6>
         </div>
         <div className="text-editor">
           <TextEditor
@@ -171,7 +171,9 @@ const EditPost = ({history}) => {
         <div className="mt-3 text-center">
           <button
             className="btn rounded-pill btn-outline-info m-2 "
-            onClick={() => {}}
+            onClick={(e) => {
+              handleEdit();
+            }}
           >
             Update post content
           </button>

@@ -42,26 +42,6 @@ const Header = (props) => {
               Home
             </NavLink>
           </li>
-          <li className="nav-item text-center">
-            <NavLink
-              className="nav-link"
-              exact
-              to="/about"
-              activeStyle={activeSyle}
-            >
-              About us
-            </NavLink>
-          </li>
-          <li className="nav-item text-center">
-            <NavLink
-              exact
-              className="nav-link"
-              to="/contact"
-              activeStyle={activeSyle}
-            >
-              Contact
-            </NavLink>
-          </li>
           
           {/* manager access */}
           {user.role === "Manager" ? (
@@ -80,7 +60,7 @@ const Header = (props) => {
 
         </ul>
         {/* search box */}
-        <div className="row mx-auto">
+        <div className="row mx-auto align-items-center justify-content-center">
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="input-group col-12">
               <input type="text"

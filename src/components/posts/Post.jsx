@@ -1,24 +1,28 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getSinglePost, likePost } from "../../actions/post";
 import { Link, useParams } from "react-router-dom";
 import { withRouter } from "react-router";
 import { hideLoading } from "react-redux-loading-bar";
+import DOMPurify from "dompurify";
+import { isEmpty } from "lodash";
+
 import {
   approvePost,
   getPostImage,
   handlelikePost,
 } from "../../services/postService";
-import DOMPurify from "dompurify";
+import { getSinglePost, likePost } from "../../actions/post";
 import Content from "../common/Content";
-import { isEmpty } from "lodash";
 import { getAllPosts } from "../../actions/posts";
 import Comments from "../comments/Comments";
 import { toast } from "react-toastify";
-import { getProfilePic } from "../../services/userService";
+import { bookmark, getProfilePic } from "../../services/userService";
+import { getUserBookmarks } from "../../actions/bookmarks";
 
 const Post = ({ match, history }) => {
   const dispatch = useDispatch();
+  const post = useSelector((state) => state.post);
+  const user = useSelector((state) => state.user);
 
   useEffect(() => {
     dispatch(hideLoading());
@@ -29,10 +33,8 @@ const Post = ({ match, history }) => {
     }
   }, []);
 
-  const post = useSelector((state) => state.post);
-  const user = useSelector((state) => state.user);
-
   let likeStyle = post.is_liked ? "text-danger" : "text-muted";
+  let bookmarkStyle = post.is_saved ? "#475569" : "#A9A9A9";
 
   const handleApprovement = async (type) => {
     const data = {
@@ -76,7 +78,36 @@ const Post = ({ match, history }) => {
   } else if (post.status === "Pending") {
     statusStyle = "badge-warning";
   }
+
   // "edit" access
+
+  const handleBookmark = async () => {
+    if (!isEmpty(localStorage.getItem("token"))) {
+      try {
+        const data = {
+          id: post.id,
+        };
+        const { status } = await bookmark(
+          localStorage.getItem("token"),
+          post.id
+        );
+        if (status === 200) {
+          if (post.is_saved === true) {
+            toast.info("Post unbookmarked !");
+          } else {
+            toast.success("Post bookmarked !");
+          }
+          dispatch(getUserBookmarks(localStorage.getItem("token")));
+          dispatch(getSinglePost(post.id, localStorage.getItem("token")));
+        }
+      } catch (er) {
+        console.log(er);
+      }
+    } else {
+      history.push("/login");
+    }
+  };
+
   let section = null;
   if (localStorage.getItem("token")) {
     if (user.role === "Manager" || user.role === "Admin") {
@@ -162,33 +193,35 @@ const Post = ({ match, history }) => {
     <div className="row mt-4">
       <div className="col-12 col-lg-3 side-bar order-2">
         <div className="container">
-          <Link to="/" id="user-panel-link" style={{ textDecoration: "none" }}>
-            <div className="row p-2 mb-2 rounded user-panel-item border mt-3">
-              <div className="col-3">
-                <img
-                  src={getProfilePic(user.id)}
-                  className="img img-fluid rounded-pill"
-                />
-              </div>
-
-              <div className="col-9 text-right">
-                <p className="bold text-dark m-0">Mahdi Shokrzadeh</p>
-                <span className="text-muted">@shokrzadeh</span>
-              </div>
-              <div className="ml-3 mt-2">
-                <div className="text-dark m-0">
-                  <p>decriptoin</p>
+          <Link
+            to={`/users/${post.user_id}`}
+            id="user-panel-link"
+            style={{ textDecoration: "none" }}
+          >
+            <div className="p-2 mb-2 user-panel-item mt-3" id="author_inf">
+              <div className="row pl-2 mb-3">
+                <div className="col-4 mt-2">
+                  <img
+                    src={getProfilePic(post.user_id)}
+                    className="img img-fluid rounded-pill"
+                    width="65px"
+                    height="65px"
+                  />
                 </div>
 
-                <div className="m-0 text-dark">
+                <div className="col-8 mt-2 d-flex texr-left">
                   <span
-                    className="mr-2"
-                    style={{ fontSize: "14px", color: "gray" }}
+                    className="text-dark align-self-center m-0"
+                    style={{ fontWeight: "bolder" }}
                   >
-                    Registration date :
+                    <i>{post.user_fullname}</i>
                   </span>
-                  <span className="text-muted">
-                    <i>11 sep 2020</i>
+                </div>
+              </div>
+              <div className="ml-3 mt-2">
+                <div className="mb-2">
+                  <span className="text-muted" style={{ fontSize: "14px" }}>
+                    {user.description}
                   </span>
                 </div>
               </div>
@@ -222,19 +255,26 @@ const Post = ({ match, history }) => {
               </div>
               <div className="comments-icon mt-3">
                 <i
-                  className="fa fa-comments fa-2x"
+                  className="fas fa-comments fa-2x"
                   style={{ color: "#475569" }}
                 ></i>
               </div>
-              <div className="ml-2">
-                <span>{post.comments_count}</span>
+              <div className="ml-2 mb-3">
+                <span>{post.comment_count}</span>
               </div>
-              <div className="mt-3">
+              <Link
+                to="/"
+                className="mt-3"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleBookmark();
+                }}
+              >
                 <i
-                  className="fa fa-plus fa-2x"
-                  style={{ color: "limegreen" }}
+                  className="fas fa-bookmark fa-2x"
+                  style={{ color: bookmarkStyle }}
                 ></i>
-              </div>
+              </Link>
             </div>
           </div>
 
@@ -247,29 +287,33 @@ const Post = ({ match, history }) => {
                   className="img img-fluid rounded"
                 />
 
-                {/* <div className="tags d-flex flex-row mt-3">
-                 
-                  {post.keys.split(",").map((key , i) => (
-                    <Link to={`/search/${key.trim().replace("#", "")}`} key={i}>
-                      <span
-                        className="badge badge-info mr-4 p-1 rounded"
-                        style={{
-                          fontWeight: "400",
-                          backgroundColor: "#cccccc",
-                          color: "black",
-                          fontSize: "13px",
-                        }}
-                      >
-                        {key}
-                      </span>
-                    </Link>
-                  ))}
-                </div> */}
+                <div className="tags d-flex flex-row mt-3">
+                  {post.tags
+                    ? post.tags.split(",").map((key, i) => (
+                        <Link
+                          to={`/search/${key.trim().replace("#", "")}`}
+                          key={i}
+                        >
+                          <span
+                            className="badge badge-info mr-4 p-1 rounded"
+                            style={{
+                              fontWeight: "400",
+                              backgroundColor: "#cccccc",
+                              color: "black",
+                              fontSize: "13px",
+                            }}
+                          >
+                            {key}
+                          </span>
+                        </Link>
+                      ))
+                    : null}
+                </div>
               </div>
 
               <hr />
               <div className="inf mt-2">
-                <span className="text-muted">
+                <span className="text-muted" style={{ fontSize: "14px" }}>
                   {" "}
                   Posted on <i>{post.created_at}</i>
                 </span>
@@ -303,13 +347,22 @@ const Post = ({ match, history }) => {
 
                   <div className="col-4 text-center comments-icon">
                     <i className="fa fa-comments mr-3"></i>
-                    <span>{post.comments_count}</span>
+                    <span>{post.comment_count}</span>
                   </div>
                   <div className="col-4 text-center">
-                    <i
-                      className="fa fa-plus"
-                      style={{ color: "limegreen" }}
-                    ></i>
+                    <Link
+                      to="/"
+                      className="mt-3"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleBookmark();
+                      }}
+                    >
+                      <i
+                        className="fas fa-bookmark"
+                        style={{ color: bookmarkStyle }}
+                      ></i>
+                    </Link>
                   </div>
                 </div>
               </div>

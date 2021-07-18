@@ -18,6 +18,10 @@ export const userReducer = (state = {} , action) => {
             localStorage.setItem("user" , JSON.stringify({...action.payload}));
             return {...action.payload};
 
+        case "CHANGE_BIO" :
+            localStorage.setItem("user" , JSON.stringify({...action.payload}));
+            return {...action.payload};
+
         default :
             return state ;
             

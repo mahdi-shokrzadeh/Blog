@@ -1,5 +1,6 @@
 import { loadingBarReducer } from "react-redux-loading-bar";
 import { combineReducers } from "redux";
+import { bookmarksReducer } from "./bookmarks";
 import { postReducer} from "./post" ;
 import { postsReducer } from "./posts";
 import { userReducer } from "./user";
@@ -10,5 +11,6 @@ export const reducers = combineReducers({
     posts : postsReducer ,
     user : userReducer ,
     loadingBar : loadingBarReducer ,
-    users : usersReducer
+    users : usersReducer ,
+    bookmarks : bookmarksReducer 
 })

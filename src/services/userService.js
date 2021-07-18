@@ -63,3 +63,21 @@ export const deleteUser = (userId , token) => {
     }
   })  
 }
+
+// Bookmarks
+
+export const getBookmarks = (token) => {
+  return http.get(`${config.localHost}/readinglist` , {
+    headers: {
+      Authorization : `token ${token}` ,
+    }
+  })
+}
+
+export const bookmark = ( token ,postId) => {
+  return http.put(`${config.localHost}/save/?id=${postId}` , "" , {
+    headers: {
+      Authorization : `token ${token}` ,
+    }
+  })
+}

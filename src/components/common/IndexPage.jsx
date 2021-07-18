@@ -1,37 +1,50 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, withRouter } from "react-router-dom";
 import { isEmpty, set } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import Posts from "../posts/Posts";
-import { getUserPosts, pendingPosts, searchPosts } from "../../services/postService";
+import {
+  getPopularTags,
+  getUserPosts,
+  pendingPosts,
+  searchPosts,
+} from "../../services/postService";
 import { hideLoading, showLoading } from "react-redux-loading-bar";
 import { getProfilePic } from "../../services/userService";
 import { getPendingComments } from "../../services/commentService";
 import PendingComments from "../comments/PendingComments";
 
 const IndexPage = ({ match }) => {
-
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const allPosts = useSelector((state) => state.posts);
+  const bookmarks = useSelector((state) => state.bookmarks);
+
   const [header, setHeader] = useState("Blogs");
   const [posts, setPosts] = useState(useSelector((state) => state.posts));
   const [contentToShow, setContentToShow] = useState("blog");
   const [comments, setComments] = useState([]);
+  const [popularTags, setPopularTags] = useState([]);
 
   const search = async (query) => {
-    const { status , data } = await searchPosts(query);
-    if(status === 200 ){
+    const { status, data } = await searchPosts(query);
+    if (status === 200) {
       setHeader(`result for ${query}`);
-      setPosts(data.posts)
+      setPosts(data.posts);
     }
-  }
-
+  };
+  const mounted = useRef();
   useEffect(() => {
     if (match.params.query) {
       search(`#${match.params.query}`);
     }
   });
+  useEffect( async () => {
+    const { data, status } = await getPopularTags();
+    if (status === 200) {
+      setPopularTags(data.tags);
+    }
+  }, []);
 
   const handlesection = async (type) => {
     switch (type) {
@@ -76,20 +89,25 @@ const IndexPage = ({ match }) => {
 
         break;
 
-      case "check-comments" :
+      case "check-comments":
         setContentToShow("comment");
         setHeader("Pending comments");
         try {
-          const {status , data} = await getPendingComments(localStorage.getItem("token"));
-          if (status === 200){
+          const { status, data } = await getPendingComments(
+            localStorage.getItem("token")
+          );
+          if (status === 200) {
             setComments(data.comments);
           }
-        }catch(er){
+        } catch (er) {
           console.log(er);
         }
 
         break;
 
+      case "bookmarks":
+        setContentToShow("blog");
+        setPosts(bookmarks);
     }
   };
 
@@ -145,11 +163,19 @@ const IndexPage = ({ match }) => {
                   </div>
                 </Link>
 
-                <Link to="/" id="user-panel-link" style={{ direction: "ltr" }}>
+                <Link
+                  to="/"
+                  id="user-panel-link"
+                  style={{ direction: "ltr" }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlesection("bookmarks");
+                  }}
+                >
                   <div className="row p-2 rounded user-panel-item mb-2">
                     <div className="col-10">
                       <span className="text-dark">
-                        <i class="fa fa-list mr-2"></i> Reading list
+                        <i class="fas fa-bookmark mr-2"></i> Bookmarks
                       </span>
                     </div>
 
@@ -158,7 +184,7 @@ const IndexPage = ({ match }) => {
                         className="badge"
                         style={{ backgroundColor: "#bdeaee" }}
                       >
-                        0
+                        {bookmarks.length}
                       </span>
                     </div>
                   </div>
@@ -239,9 +265,9 @@ const IndexPage = ({ match }) => {
                       to="/"
                       id="user-panel-link"
                       style={{ direction: "ltr" }}
-                      onClick={ (e) => {
+                      onClick={(e) => {
                         e.preventDefault();
-                        handlesection("check-comments")
+                        handlesection("check-comments");
                       }}
                     >
                       <div className="row p-2 rounded admin-panel-item mb-2">
@@ -282,29 +308,20 @@ const IndexPage = ({ match }) => {
               # Popular tags
             </h5>
             <div className="tags">
-              <Link to="/" id="popular-tag-link">
-                <div className="ml-2 popular-tag rounded p-1 mb-2">
-                  <span className="ml-3">#Laravel</span>
-                </div>
-              </Link>
-
-              <Link to="/" id="popular-tag-link">
-                <div className="ml-2 popular-tag rounded p-1 mb-2">
-                  <span className="ml-3">#Adonis Js</span>
-                </div>
-              </Link>
-
-              <Link to="/" id="popular-tag-link">
-                <div className="ml-2 popular-tag rounded p-1 mb-2">
-                  <span className="ml-3">#Node Js</span>
-                </div>
-              </Link>
-
-              <Link to="/" id="popular-tag-link">
-                <div className="ml-2 popular-tag rounded p-1 mb-2">
-                  <span className="ml-3">#react</span>
-                </div>
-              </Link>
+              {popularTags.map((tag) => (
+                <Link
+                  to={`/search/${tag.text.substring(1)}`}
+                  id="popular-tag-link"
+                  key={tag.id}
+                >
+                  <div
+                    className="ml-2 popular-tag rounded p-1 mb-2"
+                   
+                  >
+                    <span className="ml-3">{tag.text}</span>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
@@ -323,7 +340,9 @@ const IndexPage = ({ match }) => {
 
             {contentToShow === "blog" ? <Posts posts={posts} /> : null}
             {/* comments */}
-            {contentToShow === "comment" ? <PendingComments comments={comments} /> : null}
+            {contentToShow === "comment" ? (
+              <PendingComments comments={comments} />
+            ) : null}
           </div>
         </div>
       </div>

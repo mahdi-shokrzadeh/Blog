@@ -21,6 +21,7 @@ import EditPost from "../components/posts/EditPost";
 import Profile from "../components/profile/Profile";
 import ProfilePanel from "../components/profile/ProfilePanel";
 import NotFound from "../components/common/NotFound";
+import { getUserBookmarks } from "../actions/bookmarks";
 
 
 const Blog = () => {
@@ -36,7 +37,8 @@ const Blog = () => {
     const token = localStorage.getItem("token");
     dispatch(getAllPosts());
     if(token){
-      dispatch(addUser(JSON.parse(localStorage.getItem("user"))))
+      dispatch(addUser(JSON.parse(localStorage.getItem("user"))));
+      dispatch(getUserBookmarks(localStorage.getItem("token")));
     }
 
   });
