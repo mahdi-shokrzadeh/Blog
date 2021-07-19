@@ -10,8 +10,8 @@ import { getPost } from "../../services/postService";
 import Comment from "./Comment";
 
 const Comments = ({ comments = [], postId }) => {
-  const issetComments = comments ? true : false;
-  const dispatch = useDispatch();
+
+
   const [showCommentSection, setShowCommentSection] = useState(false);
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
@@ -39,6 +39,7 @@ const Comments = ({ comments = [], postId }) => {
       const { status } = await createComment(postId, data);
       if (status === 200) {
         toast.dark("Comment posted !");
+        setShowCommentSection(false);
       }
     } else {
       validator.current.showMessages();

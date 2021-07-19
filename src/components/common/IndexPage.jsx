@@ -13,6 +13,8 @@ import { hideLoading, showLoading } from "react-redux-loading-bar";
 import { getProfilePic } from "../../services/userService";
 import { getPendingComments } from "../../services/commentService";
 import PendingComments from "../comments/PendingComments";
+import { getAllPosts } from "../../actions/posts";
+
 
 const IndexPage = ({ match }) => {
   const dispatch = useDispatch();
@@ -33,17 +35,24 @@ const IndexPage = ({ match }) => {
       setPosts(data.posts);
     }
   };
-  const mounted = useRef();
+  
+  
   useEffect(() => {
     if (match.params.query) {
       search(`#${match.params.query}`);
     }
   });
+
+  useEffect(() => {
+    setPosts(allPosts);
+  }, [allPosts]);
+
   useEffect( async () => {
     const { data, status } = await getPopularTags();
     if (status === 200) {
       setPopularTags(data.tags);
     }
+
   }, []);
 
   const handlesection = async (type) => {

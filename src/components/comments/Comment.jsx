@@ -42,7 +42,7 @@ const Comment = ({ comment }) => {
         const { status } = await createComment(post.id, data, commentId);
         if (status === 200) {
           toast.dark("Comment posted !");
-          // update post's comment section
+          setShowReplyContent(false) ;
         }
       } else {
         // logged out
@@ -54,6 +54,7 @@ const Comment = ({ comment }) => {
         const { status } = await createComment(post.id , data , commentId);
         if(status === 200){
           toast.dark("Comment posted !");
+
           // update post's comment section
         }
       }

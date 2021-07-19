@@ -61,7 +61,9 @@ const Register = ({history}) => {
                 dispatch(hideLoading());
                 history.replace("/login");
                 reset();
-            }
+            }else if (status === 204){
+              toast.error("Email address already exists!")
+            } 
         }else{ 
             validator.current.showMessages();
             forceUpdate(1);

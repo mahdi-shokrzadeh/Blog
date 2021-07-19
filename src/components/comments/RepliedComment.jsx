@@ -36,6 +36,7 @@ const RepliedComment = ({ repliedComment, parentCommentId }) => {
         );
         if (status === 200) {
           toast.dark("Comment posted !");
+          setShowReplyContent(false);
         }
       } else {
         // user logged out
